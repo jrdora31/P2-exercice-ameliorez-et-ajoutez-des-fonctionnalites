@@ -35,7 +35,7 @@ public class UserControllerTest {
 
 
     @Container
-    static MySQLContainer mySQLContainer = new MySQLContainer("mysql:latest");
+    static MySQLContainer<?> mySQLContainer = new MySQLContainer<>("mysql:latest");
 
     @Autowired
     private UserService userService;
@@ -60,6 +60,7 @@ public class UserControllerTest {
         userRepository.deleteAll();
     }
 
+    @SuppressWarnings("null")
     @Test
     public void registerUserWithoutRequiredData() throws Exception {
         // GIVEN
@@ -74,6 +75,7 @@ public class UserControllerTest {
                 .andExpect(MockMvcResultMatchers.status().isBadRequest());
     }
 
+    @SuppressWarnings("null")
     @Test
     public void registerAlreadyExistUser() throws Exception {
         // GIVEN
@@ -99,6 +101,7 @@ public class UserControllerTest {
                 .andExpect(MockMvcResultMatchers.status().isBadRequest());
     }
 
+    @SuppressWarnings("null")
     @Test
     public void registerUserSuccessful() throws Exception {
         // GIVEN

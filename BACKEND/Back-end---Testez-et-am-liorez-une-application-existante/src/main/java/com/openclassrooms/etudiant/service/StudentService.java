@@ -19,6 +19,7 @@ public class StudentService {
     private final StudentRepository studentRepository;
     private final StudentDtoMapper studentDtoMapper;
 
+    @SuppressWarnings("null")
     public StudentResponseDTO createStudent(StudentRequestDTO studentRequestDTO) {
         Student student = studentDtoMapper.toEntity(studentRequestDTO);
         Student savedStudent = studentRepository.save(student);
@@ -32,6 +33,7 @@ public class StudentService {
                 .toList();
     }
 
+    @SuppressWarnings("null")
     public StudentResponseDTO getStudentById(Long id) {
         Student student = studentRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Student not found with id " + id));
@@ -40,6 +42,7 @@ public class StudentService {
     }
 
     public StudentResponseDTO updateStudent(Long id, StudentRequestDTO studentRequestDTO) {
+        @SuppressWarnings("null")
         Student student = studentRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Student not found with id " + id));
 
@@ -51,6 +54,7 @@ public class StudentService {
         return studentDtoMapper.toDto(updatedStudent);
     }
 
+    @SuppressWarnings("null")
     public void deleteStudent(Long id) {
         Student student = studentRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Student not found with id " + id));

@@ -56,6 +56,7 @@ public class UserServiceTest {
                 () -> userService.register(user));
     }
 
+    @SuppressWarnings("null")
     @Test
     public void test_create_user() {
         // GIVEN

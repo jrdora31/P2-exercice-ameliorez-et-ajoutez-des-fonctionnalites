@@ -6,6 +6,7 @@
 	],
 	"settings": {
 		"postman.settings.dotenv-detection-notification-visibility": false,
-		"java.compile.nullAnalysis.mode": "automatic"
+		"java.compile.nullAnalysis.mode": "automatic",
+		"spring-boot.ls.problem.version-validation.UPDATE_LATEST_PATCH_VERSION": "IGNORE"
 	}
 }

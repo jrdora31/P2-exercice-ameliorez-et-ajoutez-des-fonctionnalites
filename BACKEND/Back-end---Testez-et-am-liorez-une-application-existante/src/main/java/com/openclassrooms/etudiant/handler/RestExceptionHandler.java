@@ -16,6 +16,7 @@ import java.time.LocalDateTime;
 @RestControllerAdvice
 public class RestExceptionHandler extends ResponseEntityExceptionHandler {
 
+    @SuppressWarnings("null")
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(value = {IllegalArgumentException.class, IllegalStateException.class})
     protected ResponseEntity<Object> handleConflict(RuntimeException runtimeException, WebRequest request) {
@@ -25,6 +26,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
 
+    @SuppressWarnings("null")
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     @ExceptionHandler(value = {BadCredentialsException.class})
     protected ResponseEntity<Object> handleBadCredentialsException(BadCredentialsException badCredentialsException,
@@ -34,6 +36,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
                 new HttpHeaders(), HttpStatus.UNAUTHORIZED, request);
     }
 
+    @SuppressWarnings("null")
     @ResponseStatus(HttpStatus.FORBIDDEN)
     @ExceptionHandler(value = {AccessDeniedException.class})
     protected ResponseEntity<Object> handleForbiddenException(AccessDeniedException accessDeniedException,
@@ -44,6 +47,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
 
+    @SuppressWarnings("null")
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ExceptionHandler(value = {Exception.class})
     protected ResponseEntity<Object> handleException(RuntimeException runtimeException, WebRequest request) {
