@@ -1,4 +1,136 @@
-/* You can add global styles to this file, and also import other style files */
-
 html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+body {
+  margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+  background: #f3f5f9;
+  color: #1f2937;
+}
+
+.page {
+  min-height: 100%;
+  padding: 24px;
+  box-sizing: border-box;
+}
+
+.page-toolbar {
+  margin-bottom: 24px;
+  border-radius: 12px;
+}
+
+.spacer {
+  flex: 1 1 auto;
+}
+
+.content-card,
+.table-card {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 24px;
+  box-sizing: border-box;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.table-wrapper {
+  overflow-x: auto;
+}
+
+.status {
+  margin: 16px 0;
+}
+
+.status.error {
+  color: #b91c1c;
+}
+
+.status.info {
+  color: #1d4ed8;
+}
+
+.empty {
+  margin: 24px 0 0;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+  margin: 24px 0;
+}
+
+.detail-item {
+  background: #f8fafc;
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.detail-label {
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #6b7280;
+  margin-bottom: 8px;
+}
+
+.detail-value {
+  font-size: 18px;
+}
+
+.auth-page {
+  min-height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  box-sizing: border-box;
+}
+
+.auth-card {
+  width: min(100%, 460px);
+  padding: 24px;
+  box-sizing: border-box;
+}
+
+.auth-title {
+  margin: 0 0 8px;
+}
+
+.auth-subtitle {
+  margin: 0 0 24px;
+  color: #4b5563;
+}
+
+.auth-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.auth-link {
+  display: inline-block;
+  margin-top: 16px;
+  color: #1d4ed8;
+  text-decoration: none;
+}
+
+.auth-link:hover {
+  text-decoration: underline;
+}
+
+table {
+  width: 100%;
+}

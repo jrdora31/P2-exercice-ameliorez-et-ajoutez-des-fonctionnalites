@@ -1,0 +1,59 @@
+<div class="page">
+  <mat-toolbar color="primary" class="page-toolbar">
+    <span>Étudiants</span>
+    <span class="spacer"></span>
+    <button mat-button routerLink="/students/new">Ajouter</button>
+    <button mat-button type="button" (click)="logout()">Déconnexion</button>
+  </mat-toolbar>
+
+  <mat-card class="table-card">
+    @if (loading) {
+      <p class="status info">Chargement...</p>
+    } @else {
+      @if (notice) {
+        <p class="status info">{{ notice }}</p>
+      }
+
+      @if (error) {
+        <p class="status error">{{ error }}</p>
+      }
+
+      <div class="table-wrapper">
+        <table mat-table [dataSource]="students">
+          <ng-container matColumnDef="firstName">
+            <th mat-header-cell *matHeaderCellDef>Prénom</th>
+            <td mat-cell *matCellDef="let student">{{ student.firstName }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="lastName">
+            <th mat-header-cell *matHeaderCellDef>Nom</th>
+            <td mat-cell *matCellDef="let student">{{ student.lastName }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="age">
+            <th mat-header-cell *matHeaderCellDef>Âge</th>
+            <td mat-cell *matCellDef="let student">{{ student.age ?? '-' }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef>Actions</th>
+            <td mat-cell *matCellDef="let student">
+              <div class="row-actions">
+                <button mat-button [routerLink]="['/students', student.id]">Voir</button>
+                <button mat-button [routerLink]="['/students', student.id, 'edit']">Modifier</button>
+                <button mat-button color="warn" type="button" (click)="deleteStudent(student)">Supprimer</button>
+              </div>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+        </table>
+      </div>
+
+      @if (!students.length && !error) {
+        <p class="empty">Aucun étudiant à afficher.</p>
+      }
+    }
+  </mat-card>
+</div>

@@ -10,8 +10,8 @@ import { Login } from '../models/Login';
 export class UserService {
   constructor(private httpClient: HttpClient) { }
 
-  register(user: Register): Observable<Object> {
-    return this.httpClient.post('/api/register', user);
+  register(user: Register): Observable<void> {
+    return this.httpClient.post<void>('/api/register', user);
   }
 
   login(credentials: Login): Observable<string> {

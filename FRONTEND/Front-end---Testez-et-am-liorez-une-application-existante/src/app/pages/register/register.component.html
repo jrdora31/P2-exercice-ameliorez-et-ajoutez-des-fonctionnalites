@@ -1,80 +1,59 @@
-<div class="card m-3">
-  <h5 class="card-header">Registration Form</h5>
-  <div class="card-body">
-    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
-      <div class="form-row">
-        <div class="form-group col-5">
-          <label>First Name</label>
-          <input
-            type="text"
-            formControlName="firstName"
-            class="form-control"
-            [ngClass]="{ 'is-invalid': submitted && form['firstName'].errors }"
-          />
-          @if (submitted && form['firstName'].errors) {
-            <div class="invalid-feedback">
-              @if (form['firstName'].errors?.['required']) {
-                <div>First Name is required</div>
-              }
-            </div>
-          }
-        </div>
-        <div class="form-group col-5">
-          <label>Last Name</label>
-          <input
-            type="text"
-            formControlName="lastName"
-            class="form-control"
-            [ngClass]="{ 'is-invalid': submitted && form['lastName'].errors }"
-          />
-          @if (submitted && form['lastName'].errors) {
-            <div class="invalid-feedback">
-              @if (form['lastName'].errors?.['required']) {
-                <div>Last Name is required</div>
-              }
-            </div>
-          }
-        </div>
-      </div>
-      <div class="form-group">
-        <label>Login</label>
-        <input
-          type="text"
-          formControlName="login"
-          class="form-control"
-          [ngClass]="{ 'is-invalid': submitted && form['login'].errors }"
-        />
-        @if (submitted && form['login'].errors) {
-          <div class="invalid-feedback">
-            @if (form['login'].errors?.['required']) {
-              <div>Login is required</div>
-            }
-          </div>
-        }
-      </div>
+<div class="auth-page">
+  <mat-card class="auth-card">
+    <h1 class="auth-title">Inscription</h1>
+    <p class="auth-subtitle">Créez un compte pour accéder à l'application.</p>
 
-      <div class="form-group">
-        <label>Password</label>
-        <input
-          type="text"
-          formControlName="password"
-          class="form-control"
-          [ngClass]="{ 'is-invalid': submitted && form['password'].errors }"
-        />
-        @if (submitted && form['password'].errors) {
-          <div class="invalid-feedback">
-            @if (form['password'].errors?.['required']) {
-              <div>password is required</div>
-            }
-          </div>
+    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Prénom</mat-label>
+        <input matInput type="text" formControlName="firstName" />
+        @if (submitted && form['firstName'].hasError('required')) {
+          <mat-error>Ce champ est requis.</mat-error>
         }
-      </div>
-      <div class="text-center">
-        <button class="btn btn-primary mr-1">Register</button>
-        <button class="btn btn-secondary" type="reset" (click)="onReset()">
-          Cancel
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Nom</mat-label>
+        <input matInput type="text" formControlName="lastName" />
+        @if (submitted && form['lastName'].hasError('required')) {
+          <mat-error>Ce champ est requis.</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Identifiant</mat-label>
+        <input matInput type="text" formControlName="login" />
+        @if (submitted && form['login'].hasError('required')) {
+          <mat-error>Ce champ est requis.</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Mot de passe</mat-label>
+        <input matInput type="password" formControlName="password" />
+        @if (submitted && form['password'].hasError('required')) {
+          <mat-error>Ce champ est requis.</mat-error>
+        }
+      </mat-form-field>
+
+      @if (loading) {
+        <p class="status info">Inscription en cours...</p>
+      }
+
+      @if (serverError) {
+        <p class="status error">{{ serverError }}</p>
+      }
+
+      <div class="auth-actions">
+        <button mat-flat-button color="primary" type="submit" [disabled]="loading">
+          Créer le compte
+        </button>
+        <button mat-button type="button" (click)="onReset()" [disabled]="loading">
+          Réinitialiser
         </button>
       </div>
     </form>
-  </div>
+
+    <a class="auth-link" routerLink="/login">Déjà inscrit ? Se connecter</a>
+  </mat-card>
 </div>

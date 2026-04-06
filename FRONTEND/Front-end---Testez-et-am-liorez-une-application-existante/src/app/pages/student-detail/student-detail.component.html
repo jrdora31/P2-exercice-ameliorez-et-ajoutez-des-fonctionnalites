@@ -1,0 +1,44 @@
+<div class="page">
+  <mat-toolbar color="primary" class="page-toolbar">
+    <span>Détail étudiant</span>
+    <span class="spacer"></span>
+    <button mat-button routerLink="/students">Liste</button>
+    <button mat-button type="button" (click)="logout()">Déconnexion</button>
+  </mat-toolbar>
+
+  <mat-card class="content-card">
+    @if (loading) {
+      <p class="status info">Chargement...</p>
+    } @else if (error) {
+      <p class="status error">{{ error }}</p>
+      <div class="actions">
+        <button mat-flat-button color="primary" routerLink="/students">Retour</button>
+      </div>
+    } @else if (student) {
+      <h1>{{ student.firstName }} {{ student.lastName }}</h1>
+
+      <div class="detail-grid">
+        <div class="detail-item">
+          <div class="detail-label">Prénom</div>
+          <div class="detail-value">{{ student.firstName }}</div>
+        </div>
+
+        <div class="detail-item">
+          <div class="detail-label">Nom</div>
+          <div class="detail-value">{{ student.lastName }}</div>
+        </div>
+
+        <div class="detail-item">
+          <div class="detail-label">Âge</div>
+          <div class="detail-value">{{ student.age ?? '-' }}</div>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button mat-flat-button color="primary" routerLink="/students">Retour</button>
+        <button mat-button [routerLink]="['/students', student.id, 'edit']">Modifier</button>
+        <button mat-button color="warn" type="button" (click)="deleteStudent()">Supprimer</button>
+      </div>
+    }
+  </mat-card>
+</div>
