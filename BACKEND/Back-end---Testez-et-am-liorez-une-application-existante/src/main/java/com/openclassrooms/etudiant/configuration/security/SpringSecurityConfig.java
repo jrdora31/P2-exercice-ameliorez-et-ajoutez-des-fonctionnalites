@@ -15,13 +15,21 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+
 @Configuration
 @EnableWebSecurity
 public class SpringSecurityConfig {
 
     @Autowired
     private CustomUserDetailService customUserDetailService;
+    
+    @Autowired
+    private JwtAuthenticationFilter jwtAuthenticationFilter;
 
+
+    @SuppressWarnings("deprecation")
     @Bean
     public DaoAuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
@@ -54,7 +62,7 @@ public class SpringSecurityConfig {
                         // Others protected routes will be added here.
                         .anyRequest().authenticated()
                 )
-                // .addFilterBefore(authenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .exceptionHandling(exceptionHandling -> exceptionHandling.authenticationEntryPoint(
                         (request, response, exception) -> {
                             response.sendError(HttpServletResponse.SC_UNAUTHORIZED, exception.getMessage());
