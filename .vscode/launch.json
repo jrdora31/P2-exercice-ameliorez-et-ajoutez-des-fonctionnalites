@@ -1,0 +1,36 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "java",
+      "name": "Spring Boot-EtudiantBackendApplication<etudiant-backend>",
+      "request": "launch",
+      "cwd": "${workspaceFolder}/BACKEND/Back-end---Testez-et-am-liorez-une-application-existante",
+      "mainClass": "com.openclassrooms.etudiant.EtudiantBackendApplication",
+      "projectName": "etudiant-backend",
+      "args": "",
+      "envFile": "${workspaceFolder}/BACKEND/Back-end---Testez-et-am-liorez-une-application-existante/.env"
+    },
+    {
+      "type": "firefox",
+      "request": "launch",
+      "name": "Angular Frontend Firefox",
+      "url": "http://localhost:4200",
+      "reAttach": true,
+      "pathMappings": [
+        {
+          "url": "http://localhost:4200/src",
+          "path": "${workspaceFolder}/FRONTEND/Front-end---Testez-et-am-liorez-une-application-existante/src"
+        },
+        {
+          "url": "webpack:///src/",
+          "path": "${workspaceFolder}/FRONTEND/Front-end---Testez-et-am-liorez-une-application-existante/src/"
+        },
+        {
+          "url": "webpack:///",
+          "path": "${workspaceFolder}/FRONTEND/Front-end---Testez-et-am-liorez-une-application-existante/"
+        }
+      ]
+    }
+  ]
+}
