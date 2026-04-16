@@ -3,44 +3,44 @@ import { Router, provideRouter } from '@angular/router';
 import { of, throwError } from 'rxjs';
 import { AuthService } from '../../core/service/auth.service';
 import { UserService } from '../../core/service/user.service';
-import { RegisterComponent } from './register.component';
+import { LoginComponent } from './login.component';
 
-describe('RegisterComponent', () => {
-  let fixture: ComponentFixture<RegisterComponent>;
-  let component: RegisterComponent;
+describe('LoginComponent', () => {
+  let fixture: ComponentFixture<LoginComponent>;
+  let component: LoginComponent;
   let router: Router;
   let navigateSpy: jest.SpiedFunction<Router['navigate']>;
 
   const userService = {
-    register: jest.fn()
+    login: jest.fn()
   };
 
   const authService = {
-    isAuthenticated: jest.fn().mockReturnValue(false)
+    isAuthenticated: jest.fn().mockReturnValue(false),
+    saveToken: jest.fn()
   };
 
   const createComponent = () => {
-    fixture = TestBed.createComponent(RegisterComponent);
+    fixture = TestBed.createComponent(LoginComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   };
 
   const fillValidForm = () => {
-    component.registerForm.setValue({
-      firstName: 'Ada',
-      lastName: 'Lovelace',
+    component.loginForm.setValue({
       login: 'ada',
       password: 'password'
     });
   };
 
   beforeEach(async () => {
-    userService.register.mockReset();
+    userService.login.mockReset();
     authService.isAuthenticated.mockReset();
     authService.isAuthenticated.mockReturnValue(false);
+    authService.saveToken.mockReset();
 
     await TestBed.configureTestingModule({
-      imports: [RegisterComponent],
+      imports: [LoginComponent],
       providers: [
         provideRouter([]),
         { provide: UserService, useValue: userService },
@@ -62,14 +62,20 @@ describe('RegisterComponent', () => {
     expect(component).toBeTruthy();
   });
 
+  it('should expose form controls through the getter', () => {
+    createComponent();
+
+    expect(component.form).toBe(component.loginForm.controls);
+  });
+
   it('should redirect to students when already authenticated', () => {
     authService.isAuthenticated.mockReturnValue(true);
-    fixture = TestBed.createComponent(RegisterComponent);
+    fixture = TestBed.createComponent(LoginComponent);
     component = fixture.componentInstance;
     component.ngOnInit();
 
     expect(navigateSpy).toHaveBeenCalledWith(['/students']);
-    expect(component.registerForm.controls['firstName']).toBeUndefined();
+    expect(component.loginForm.controls['login']).toBeUndefined();
   });
 
   it('should not submit when form is invalid', () => {
@@ -79,29 +85,28 @@ describe('RegisterComponent', () => {
 
     expect(component.submitted).toBe(true);
     expect(component.loading).toBe(false);
-    expect(userService.register).not.toHaveBeenCalled();
+    expect(userService.login).not.toHaveBeenCalled();
   });
 
-  it('should register a user and navigate to login on success', () => {
-    userService.register.mockReturnValue(of(void 0));
+  it('should save token and navigate to students on success', () => {
+    userService.login.mockReturnValue(of('jwt-token'));
     createComponent();
     fillValidForm();
 
     component.onSubmit();
 
-    expect(component.loading).toBe(false);
-    expect(userService.register).toHaveBeenCalledWith({
-      firstName: 'Ada',
-      lastName: 'Lovelace',
+    expect(userService.login).toHaveBeenCalledWith({
       login: 'ada',
       password: 'password'
     });
-    expect(navigateSpy).toHaveBeenCalledWith(['/login']);
+    expect(authService.saveToken).toHaveBeenCalledWith('jwt-token');
+    expect(component.loading).toBe(false);
+    expect(navigateSpy).toHaveBeenCalledWith(['/students']);
   });
 
-  it('should display server message when api returns an error object', () => {
-    userService.register.mockReturnValue(
-      throwError(() => ({ error: { message: 'Compte deja existant.' } }))
+  it('should display raw server message when api returns a string', () => {
+    userService.login.mockReturnValue(
+      throwError(() => ({ error: 'Connexion refusee.' }))
     );
     createComponent();
     fillValidForm();
@@ -109,19 +114,41 @@ describe('RegisterComponent', () => {
     component.onSubmit();
 
     expect(component.loading).toBe(false);
-    expect(component.serverError).toBe('Compte deja existant.');
+    expect(component.serverError).toBe('Connexion refusee.');
   });
 
-  it('should display parsed server message when api returns a json string', () => {
-    userService.register.mockReturnValue(
-      throwError(() => ({ error: '{"message":"Identifiant deja utilise."}' }))
+  it('should display server message when api returns an error object', () => {
+    userService.login.mockReturnValue(
+      throwError(() => ({ error: { message: 'Compte bloque.' } }))
     );
     createComponent();
     fillValidForm();
 
     component.onSubmit();
 
-    expect(component.serverError).toBe('Identifiant deja utilise.');
+    expect(component.serverError).toBe('Compte bloque.');
+  });
+
+  it('should return the raw json string when parsed error has no message', () => {
+    userService.login.mockReturnValue(
+      throwError(() => ({ error: '{}' }))
+    );
+    createComponent();
+    fillValidForm();
+
+    component.onSubmit();
+
+    expect(component.serverError).toBe('{}');
+  });
+
+  it('should fall back to a default message when error shape is unknown', () => {
+    userService.login.mockReturnValue(throwError(() => new Error('boom')));
+    createComponent();
+    fillValidForm();
+
+    component.onSubmit();
+
+    expect(component.serverError).toBe('Connexion impossible.');
   });
 
   it('should reset form state and clear flags', () => {
@@ -136,9 +163,7 @@ describe('RegisterComponent', () => {
     expect(component.submitted).toBe(false);
     expect(component.serverError).toBe('');
     expect(component.loading).toBe(false);
-    expect(component.registerForm.value).toEqual({
-      firstName: null,
-      lastName: null,
+    expect(component.loginForm.value).toEqual({
       login: null,
       password: null
     });

@@ -1,6 +1,7 @@
 package com.openclassrooms.etudiant.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.openclassrooms.etudiant.dto.LoginRequestDTO;
 import com.openclassrooms.etudiant.dto.RegisterDTO;
 import com.openclassrooms.etudiant.entities.User;
 import com.openclassrooms.etudiant.repository.UserRepository;
@@ -17,17 +18,22 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.testcontainers.containers.MySQLContainer;
+import org.testcontainers.utility.DockerImageName;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.blankOrNullString;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
-@Testcontainers
+@Testcontainers(disabledWithoutDocker = true)
 public class UserControllerTest {
 
-    private static final String URL = "/api/register";
+    private static final DockerImageName MYSQL_IMAGE = DockerImageName.parse("mysql:8.4");
+    private static final String REGISTER_URL = "/api/register";
+    private static final String LOGIN_URL = "/api/login";
     private static final String FIRST_NAME = "John";
     private static final String LAST_NAME = "Doe";
     private static final String LOGIN = "login";
@@ -35,7 +41,7 @@ public class UserControllerTest {
 
 
     @Container
-    static MySQLContainer<?> mySQLContainer = new MySQLContainer<>("mysql:latest");
+    static MySQLContainer<?> mySQLContainer = new MySQLContainer<>(MYSQL_IMAGE);
 
     @Autowired
     private UserService userService;
@@ -63,11 +69,11 @@ public class UserControllerTest {
     @SuppressWarnings("null")
     @Test
     public void registerUserWithoutRequiredData() throws Exception {
-        // GIVEN
+        // GIVEN: une requete d'inscription incomplete doit etre rejetee par la validation.
         RegisterDTO registerDTO = new RegisterDTO();
 
         // WHEN
-        mockMvc.perform(MockMvcRequestBuilders.post(URL)
+        mockMvc.perform(MockMvcRequestBuilders.post(REGISTER_URL)
                         .content(objectMapper.writeValueAsString(registerDTO))
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
@@ -78,22 +84,13 @@ public class UserControllerTest {
     @SuppressWarnings("null")
     @Test
     public void registerAlreadyExistUser() throws Exception {
-        // GIVEN
-        User user = new User();
-        user.setFirstName(FIRST_NAME);
-        user.setLastName(LAST_NAME);
-        user.setLogin(LOGIN);
-        user.setPassword(PASSWORD);
+        // GIVEN: une inscription avec un login deja present doit echouer.
+        User user = buildUser();
         userService.register(user);
-
-        RegisterDTO registerDTO = new RegisterDTO();
-        registerDTO.setFirstName(FIRST_NAME);
-        registerDTO.setLastName(LAST_NAME);
-        registerDTO.setLogin(LOGIN);
-        registerDTO.setPassword(PASSWORD);
+        RegisterDTO registerDTO = buildRegisterDTO();
 
         // WHEN
-        mockMvc.perform(MockMvcRequestBuilders.post(URL)
+        mockMvc.perform(MockMvcRequestBuilders.post(REGISTER_URL)
                         .content(objectMapper.writeValueAsString(registerDTO))
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
@@ -104,19 +101,89 @@ public class UserControllerTest {
     @SuppressWarnings("null")
     @Test
     public void registerUserSuccessful() throws Exception {
-        // GIVEN
-        RegisterDTO registerDTO = new RegisterDTO();
-        registerDTO.setFirstName(FIRST_NAME);
-        registerDTO.setLastName(LAST_NAME);
-        registerDTO.setLogin(LOGIN);
-        registerDTO.setPassword(PASSWORD);
+        // GIVEN: une inscription valide doit creer l'utilisateur en base.
+        RegisterDTO registerDTO = buildRegisterDTO();
 
         // WHEN
-        mockMvc.perform(MockMvcRequestBuilders.post(URL)
+        mockMvc.perform(MockMvcRequestBuilders.post(REGISTER_URL)
                         .content(objectMapper.writeValueAsString(registerDTO))
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(MockMvcResultMatchers.status().isCreated());
+    }
+
+    @SuppressWarnings("null")
+    @Test
+    public void loginUserWithoutRequiredData() throws Exception {
+        // GIVEN: une requete de connexion incomplete doit etre rejetee.
+        LoginRequestDTO loginRequestDTO = new LoginRequestDTO();
+
+        // WHEN
+        mockMvc.perform(MockMvcRequestBuilders.post(LOGIN_URL)
+                        .content(objectMapper.writeValueAsString(loginRequestDTO))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(MockMvcResultMatchers.status().isBadRequest());
+    }
+
+    @SuppressWarnings("null")
+    @Test
+    public void loginUserWithInvalidPassword() throws Exception {
+        // GIVEN: un mauvais mot de passe doit produire une erreur metier.
+        userService.register(buildUser());
+        LoginRequestDTO loginRequestDTO = buildLoginRequestDTO(LOGIN, "wrong-password");
+
+        // WHEN
+        mockMvc.perform(MockMvcRequestBuilders.post(LOGIN_URL)
+                        .content(objectMapper.writeValueAsString(loginRequestDTO))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("Invalid credentials"));
+    }
+
+    @SuppressWarnings("null")
+    @Test
+    public void loginUserSuccessful() throws Exception {
+        // GIVEN: un utilisateur existant doit recevoir un JWT a la connexion.
+        userService.register(buildUser());
+        LoginRequestDTO loginRequestDTO = buildLoginRequestDTO(LOGIN, PASSWORD);
+
+        // WHEN
+        mockMvc.perform(MockMvcRequestBuilders.post(LOGIN_URL)
+                        .content(objectMapper.writeValueAsString(loginRequestDTO))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.TEXT_PLAIN))
+                .andDo(print())
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.content().string(not(blankOrNullString())));
+    }
+
+    private User buildUser() {
+        User user = new User();
+        user.setFirstName(FIRST_NAME);
+        user.setLastName(LAST_NAME);
+        user.setLogin(LOGIN);
+        user.setPassword(PASSWORD);
+        return user;
+    }
+
+    private RegisterDTO buildRegisterDTO() {
+        RegisterDTO registerDTO = new RegisterDTO();
+        registerDTO.setFirstName(FIRST_NAME);
+        registerDTO.setLastName(LAST_NAME);
+        registerDTO.setLogin(LOGIN);
+        registerDTO.setPassword(PASSWORD);
+        return registerDTO;
+    }
+
+    private LoginRequestDTO buildLoginRequestDTO(String login, String password) {
+        LoginRequestDTO loginRequestDTO = new LoginRequestDTO();
+        loginRequestDTO.setLogin(login);
+        loginRequestDTO.setPassword(password);
+        return loginRequestDTO;
     }
 }

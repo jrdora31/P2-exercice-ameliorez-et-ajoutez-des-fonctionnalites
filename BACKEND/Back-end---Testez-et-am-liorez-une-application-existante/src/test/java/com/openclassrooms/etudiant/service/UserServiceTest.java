@@ -34,7 +34,7 @@ public class UserServiceTest {
     @Test
     public void test_create_null_user_throws_IllegalArgumentException() {
         // GIVEN
-
+ 
         // THEN
         Assertions.assertThrows(IllegalArgumentException.class,
                 () -> userService.register(null));
