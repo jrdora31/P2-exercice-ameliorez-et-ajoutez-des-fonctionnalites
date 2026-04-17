@@ -1,4 +1,7 @@
 {
     "java.compile.nullAnalysis.mode": "disabled",
-    "postman.settings.dotenv-detection-notification-visibility": false
+    "postman.settings.dotenv-detection-notification-visibility": false,
+    "typescript.tsdk": "FRONTEND/Front-end---Testez-et-am-liorez-une-application-existante/node_modules/typescript/lib",
+    "typescript.enablePromptUseWorkspaceTsdk": true,
+    "js/ts.tsdk.path": "FRONTEND/Front-end---Testez-et-am-liorez-une-application-existante/node_modules/typescript/lib"
 }

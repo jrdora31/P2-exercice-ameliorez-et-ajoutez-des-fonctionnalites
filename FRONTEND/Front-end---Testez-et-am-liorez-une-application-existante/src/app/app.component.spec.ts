@@ -1,3 +1,6 @@
+/// <reference types="jest" />
+
+import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { AppComponent } from './app.component';
